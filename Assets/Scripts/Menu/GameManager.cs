@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -15,7 +16,7 @@ public class GameManager : MonoBehaviour
     
     public static GameManager Instance;
     
-    public SceneOrigin lastSceneOrigin = SceneOrigin.StartUp; // dfault to start-up
+    public SceneOrigin lastSceneOrigin = SceneOrigin.StartUp; // default to start-up
     public GameObject mainMenuCanvas;
     public GameObject userButtonPrefab;
     public GameObject loginPanel;
@@ -24,14 +25,18 @@ public class GameManager : MonoBehaviour
     public GameObject userSelectionPanel;
 
     public string currentUser;
+    private const string UserDataFileName = "userData.txt";
+    private string _userDataPath;
+
 
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            PopulateDummyPlayers();
+            _userDataPath = Path.Combine(Application.persistentDataPath, UserDataFileName);
             DontDestroyOnLoad(gameObject);
+            LoadUsersFromFile();
         }
         else
         {
@@ -125,6 +130,7 @@ public class GameManager : MonoBehaviour
     public void ExitGame()
     {
         PlayerPrefs.Save();
+        SaveUsersToFile();
         Application.Quit();
     }
 
@@ -185,9 +191,11 @@ public class GameManager : MonoBehaviour
 
         PlayerPrefs.SetString("User_" + userCount, username);
         PlayerPrefs.SetInt("UserCount", userCount + 1);
-        PlayerPrefs.SetInt(username + "_Score", 0); // Initialize score
+        PlayerPrefs.SetInt(username + "_Score", 0);
         Debug.Log("User added: " + username);
         PlayerPrefs.Save();
+        SaveUsersToFile();
+
     }
 
     public void SaveScore(string username, int score)
@@ -216,4 +224,42 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void LoadUsersFromFile()
+    {
+        if (File.Exists(_userDataPath))
+        {
+            string[] lines = File.ReadAllLines(_userDataPath);
+            foreach (string line in lines)
+            {
+                string[] parts = line.Split(',');
+                if (parts.Length >= 2)
+                {
+                    // Assuming the format is "username,score"
+                    PlayerPrefs.SetString(parts[0], parts[0]); // Storing username in PlayerPrefs temporarily
+                    PlayerPrefs.SetInt(parts[0] + "_Score", int.Parse(parts[1]));
+                }
+            }
+        }
+        else
+        {
+            Debug.Log("User data file does not exist. Creating a new one.");
+            File.WriteAllText(_userDataPath, "");
+            PopulateDummyPlayers(); // Populate with dummy data if no file exists
+            SaveUsersToFile(); // Save the dummy data immediately
+        }
+    }
+    
+    private void SaveUsersToFile()
+    {
+        List<string> lines = new List<string>();
+        int userCount = PlayerPrefs.GetInt("UserCount", 0);
+        for (int i = 0; i < userCount; i++)
+        {
+            string username = PlayerPrefs.GetString("User_" + i);
+            int score = PlayerPrefs.GetInt(username + "_Score", 0);
+            lines.Add(username + "," + score);
+        }
+        File.WriteAllLines(_userDataPath, lines);
+    }
+    
 }
