@@ -12,6 +12,7 @@ using UnityEngine.Serialization;
 public class CorpseManager : MonoBehaviour
 {
     public static event Action OnOpenedAction;
+    public static bool CanOpen = false;
     public static float MinDistanceToPlayer = 1.5f;
 
     
@@ -89,10 +90,12 @@ public class CorpseManager : MonoBehaviour
     
     public void ToggleOpenClose()
     {
+        if (!CanOpen) return;
+        OnOpenedAction?.Invoke();
+
         Debug.Log("in ToggleOpenClose");
         if (!isOpen)
         {
-            OnOpenedAction?.Invoke();
             thisContainerPrefab.GetComponent<ContainerItem>().ToggleOpenClose();
             isOpen = true;
             StartCoroutine(CloseOnDistanceLoop());

@@ -19,8 +19,9 @@ public class TutorialManager : MonoBehaviour
         tutorialText.text = "Use WSAD to move.";
 
         PlayerController.OnMoveAction += InvokeMovementAction;
-        Monster.OnAttackedAction += CheckAttackTutorial;
-        CorpseManager.OnOpenedAction += CheckLootingTutorial;
+        CorpseManager.OnOpenedAction += EnableAttackTutorial;
+        Monster.OnAttackedAction += EndTutorial;
+
     }
 
 
@@ -29,12 +30,12 @@ public class TutorialManager : MonoBehaviour
         if (hasMovedUp && hasMovedDown && hasMovedLeft && hasMovedRight)
         {
             movementComplete = true;
-            EnableAttackTutorial();
+            EnableLootingTutorial();
         }
         
     }
 
-    void CheckLootingTutorial()
+    void EndTutorial()
     {
         if (attackDone)
         {
@@ -42,12 +43,12 @@ public class TutorialManager : MonoBehaviour
         }
     }
     
-    void CheckAttackTutorial()
+    void EnableLootingTutorial()
     {
         if (movementComplete)
         {
+            CorpseManager.CanOpen = true;
             tutorialText.text = "Left click on a corpse to loot it.\nDrag items to your inventory slots.";
-            attackDone = true;
         }
     }
     
@@ -55,6 +56,7 @@ public class TutorialManager : MonoBehaviour
     {
         tutorialText.text = "Press CTRL + Left Click on an enemy to attack.";
         playerController.SetCanAttack(true);
+        attackDone = true;
     }
     
     private void InvokeMovementAction(Vector2 direction)
