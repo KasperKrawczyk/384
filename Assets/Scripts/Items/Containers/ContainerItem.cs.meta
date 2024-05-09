@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: dd20c474793e47d88dc6bc5c689070db
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - baseInfo: {instanceID: 0}
+  - spm: {instanceID: 0}
+  - image: {instanceID: 0}
+  - containerParentPanelPrefab: {fileID: 4772325448746065305, guid: a7ac2377b3691194986e976548b4d628, type: 3}
+  - cpm: {instanceID: 0}
+  - cbm: {instanceID: 0}
+  - containerStats: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

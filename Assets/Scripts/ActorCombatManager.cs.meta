@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 8dcba764546e50f40823cc19e5f5c58e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - meleeEffectPrefab: {instanceID: 0}
+  - hitTakenPrefab: {fileID: 1621561221405557301, guid: 08c517b342a7d3d4090fdbbf1721d489, type: 3}
+  - hitParriedPrefab: {instanceID: 0}
+  - rangeEffectPrefab: {instanceID: 0}
+  - _currentTarget: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b34800848654691b1f73fd62a3e4355, type: 3}
+  m_Name: OrcChampionDropTable
+  m_EditorClassIdentifier: 
+  dropStatInfoList:
+  - address: Prefabs/Items/Weapons/Swords/Sword
+    prob: 1
+    qty: 0
+  - address: Prefabs/Items/Weapons/Swords/FlameSword
+    prob: 1
+    qty: 0
+  - address: Prefabs/Items/Weapons/Ranged/Spear/Spear
+    prob: 1
+    qty: 0
