@@ -124,6 +124,7 @@ public class GameManager : MonoBehaviour
 
     public void ExitGame()
     {
+        PlayerPrefs.Save();
         Application.Quit();
     }
 
@@ -144,6 +145,11 @@ public class GameManager : MonoBehaviour
     {
         GameObject scrollViewContent = userSelectionPanel.GetComponentInChildren<ScrollRect>().content.gameObject;
 
+        foreach (Transform child in scrollViewContent.transform)
+        {
+            Destroy(child.gameObject);
+        }
+        
         foreach (string user in GetAllUsers())
         {
             GameObject userButton = Instantiate(userButtonPrefab, scrollViewContent.transform);
