@@ -1,0 +1,15 @@
+{
+  "dropStatInfoList": [
+    {
+      "itemId": "Sword",
+      "prob": 1,
+      "qty": 1
+    },
+    {
+      "itemId": "GoldCoin",
+      "prob": 1,
+      "qty": 10
+    }
+  ] 
+          
+}

@@ -26,7 +26,7 @@ public class MenuPanelManager : MonoBehaviour
     {
         Time.timeScale = 1;
         string userName = PlayerPrefs.GetString("CurrentUser");
-        GameManager.Instance.SaveScore(userName, PlayerController.Instance.GetStatsManager().curExperiencePoints);
+        GameManager.Instance.SaveScore(userName, PlayerController.Instance.GetStatsManager().GetSkillLevel(IntStatInfoType.Experience));
         GameManager.Instance.LoadMenuScene(GameManager.SceneOrigin.GameScene);
         
     }

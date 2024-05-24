@@ -16,16 +16,10 @@ using Random = UnityEngine.Random;
 ]
 public class Monster : MonoBehaviour
 {
-    public static event Action OnAttackedAction;
-
-    private IMonsterState currentState;
-    public IdleState idleState = new IdleState();
-    public PursueState pursueState = new PursueState();
-    public ReturnState returnState = new ReturnState();
-
+    public event Action<Monster> OnMonsterDestroyed;
     protected Rigidbody2D rb { get; private set; }
     [SerializeField] protected MonsterBaseInfo mbi;
-    public FloatStats monsterStats;
+    public IntStats monsterStats;
     const float OverlapCircleRadius = 0.45f;
     [SerializeField] protected Animator animator;
     [SerializeField] protected ObjectInteractionManager oim;
@@ -40,15 +34,16 @@ public class Monster : MonoBehaviour
     public LayerMask monsterLayerMask;
     public ContactFilter2D contactFilter;
     public List<Collider2D> raycastHits;
-    public Vector3 startPosition { get; set; }
-    public Vector3 currentDestination { get; set; }
+    protected Vector3 startPosition;
+    protected Vector3 currentDestination;
     protected int currentDirectionIndex;
     protected int attemptedDirectionIndex;
 
     protected float moveSpeed;
-    public bool isMoving { get; set; }
+    protected bool isMoving = false;
 
     [SerializeField] protected string currentAnimationState;
+    
 
 
     private void SetUpContactFilter()
@@ -56,9 +51,10 @@ public class Monster : MonoBehaviour
         contactFilter = new ContactFilter2D();
         contactFilter.layerMask = LayerMask.GetMask("Monsters", "Obstacles", "Player");
         contactFilter.useLayerMask = true;
-    }
 
-    protected virtual void Start()
+    }   
+    
+    void Start()
     {
         playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
         playerAcm = playerTransform.gameObject.GetComponent<ActorCombatManager>();
@@ -77,18 +73,22 @@ public class Monster : MonoBehaviour
             oim.OnInteractableClick += OnClick;
         }
 
-        acm = GetComponent<ActorCombatManager>();
-        acm.actorStats = monsterStats;
-        acm.corpsePrefab = mbi.corpsePrefab;
+
         startPosition = rb.position;
         currentDirectionIndex = 3;
-        moveSpeed = monsterStats.GetStat(FloatStatInfoType.MoveSpeed);
+        moveSpeed = monsterStats.GetStat(IntStatInfoType.MoveSpeed);
         nmp = new NavMeshPath();
         gm = GridManager.instance;
         trm = TileReservationManager.Instance;
-        currentState = idleState;
-        currentState.Execute(this);
         StartCoroutine(BehaviourLoop());
+    }
+
+    private void Awake()
+    {
+        acm = GetComponent<ActorCombatManager>();
+        acm.actorStats = monsterStats;
+        acm.mbi = mbi;
+        acm.corpsePrefab = mbi.corpsePrefab;
     }
 
     private void Update()
@@ -100,8 +100,19 @@ public class Monster : MonoBehaviour
     {
         while (true)
         {
-            DetermineState();
-            currentState.Execute(this);
+            switch (DetermineState())
+            {
+                case MonsterState.Idle:
+                    Idle();
+                    break;
+                case MonsterState.Pursue:
+                    Pursue();
+                    break;
+                case MonsterState.Return:
+                    ReturnToStart();
+                    break;
+            }
+
             yield return new WaitForSeconds(.5f); // Check every half second
         }
     }
@@ -122,17 +133,31 @@ public class Monster : MonoBehaviour
         }
     }
 
-    public void FollowPathTowards(Vector3 target)
+    protected void FollowPathTowards(Vector3 target)
     {
         NavMesh.CalculatePath(transform.position, target, NavMesh.AllAreas, path: nmp);
 
-        if (nmp != null && nmp.corners.Length > 1)
+        if (nmp != null)
         {
-            Vector2 nextStep = nmp.corners[1];
-
+            Vector2 nextStep;
+            if (nmp.corners.Length > 1)
+            {
+                nextStep = nmp.corners[1];
+            }
+            else if (nmp.corners.Length == 1)
+            {
+                nextStep = nmp.corners[0];
+            }
+            else
+            {
+                nextStep = currentDestination;
+            }
+            
             Vector2 directionToNextStep = (nextStep - (Vector2)transform.position).normalized;
 
             MoveInDirection(directionToNextStep);
+            DrawDebugPath(nmp, Color.red, 1f);
+
         }
     }
 
@@ -150,7 +175,7 @@ public class Monster : MonoBehaviour
         }
     }
 
-    public void MoveInRandomDirection()
+    private void MoveInRandomDirection()
     {
         attemptedDirectionIndex = Random.Range(0, MovementConstants.DIRECTIONS.Length);
         Vector2 chosenDirection = MovementConstants.DIRECTIONS[attemptedDirectionIndex];
@@ -192,16 +217,16 @@ public class Monster : MonoBehaviour
             Vector2 targetTile = start + direction;
             Vector2 end = new Vector2(Mathf.Floor(targetTile.x) + .5f, Mathf.Floor(targetTile.y) + .5f);
             Vector2Int endInt = Vector2Int.FloorToInt(end);
-            // check for obstacles using the LayerMask
+            // Check for obstacles using the LayerMask
             if (!IsCollision(end))
             {
                 DrawDebugCircle(end, OverlapCircleRadius, Color.blue);
 
-                // additional check for other monsters
+                // Additional check for other monsters
                 if (IsCollision(end))
                 {
                     Debug.Log("Monster collision in " + name);
-                    // attempt to find a sidestep direction
+                    // Attempt to find a sidestep direction
                     Vector2 sidestepDirection = FindNextBestDirection(end);
                     DrawDebugCircle(end, OverlapCircleRadius, Color.red);
 
@@ -209,27 +234,25 @@ public class Monster : MonoBehaviour
                     {
                         end = start + sidestepDirection;
                         endInt = Vector2Int.FloorToInt(end);
-                        if (trm.ReserveTile(endInt, gameObject)) // reserve the target tile
+                        if (trm.ReserveTile(endInt, gameObject)) // Reserve the target tile
                         {
-                            // found a valid sidestep direction, move there instead
+                            // Found a valid sidestep direction, move there instead
                             StartCoroutine(Move(end));
-                            trm.ReleaseTile(Vector2Int.FloorToInt(start),
-                                gameObject); // Release the reservation upon arrival
+                            trm.ReleaseTile(Vector2Int.FloorToInt(start), gameObject); // Release the reservation upon arrival
                         }
                     }
-                    // no valid sidestep found, might choose to wait or handle differently
+                    // No valid sidestep found, might choose to wait or handle differently
                 }
                 else
                 {
-                    // no collision with other monsters, proceed with the move
+                    // No collision with other monsters, proceed with the move
                     currentDirectionIndex = attemptedDirectionIndex;
                     endInt = Vector2Int.FloorToInt(end);
-                    if (trm.ReserveTile(endInt, gameObject)) // reserve the target tile
+                    if (trm.ReserveTile(endInt, gameObject)) // Reserve the target tile
                     {
-                        // found a valid sidestep direction, move there instead
+                        // Found a valid sidestep direction, move there instead
                         StartCoroutine(Move(end));
-                        trm.ReleaseTile(Vector2Int.FloorToInt(start),
-                            gameObject); // release the reservation upon arrival
+                        trm.ReleaseTile(Vector2Int.FloorToInt(start), gameObject); // Release the reservation upon arrival
                     }
                 }
             }
@@ -239,8 +262,7 @@ public class Monster : MonoBehaviour
     private bool IsCollision(Vector2 moveTarget)
     {
         Vector2Int moveTargetInt = Vector2Int.FloorToInt(moveTarget);
-        return Physics2D.OverlapCircle(moveTarget, OverlapCircleRadius, contactFilter, raycastHits) > 0 ||
-               trm.IsTileReserved(moveTargetInt);
+        return Physics2D.OverlapCircle(moveTarget, OverlapCircleRadius, contactFilter, raycastHits) > 0 || trm.IsTileReserved(moveTargetInt);
     }
 
     // Attempts to find a valid direction to sidestep around another monster
@@ -268,12 +290,11 @@ public class Monster : MonoBehaviour
 
         return bestDir; // Might be Vector2.zero if no good direction is found
     }
-
     private IEnumerator Move(Vector2 destination)
     {
         isMoving = true;
         Vector2 step;
-
+        
         while ((Vector2)rb.position != destination)
         {
             step = Vector2.MoveTowards(rb.position, destination, moveSpeed * Time.deltaTime);
@@ -284,54 +305,26 @@ public class Monster : MonoBehaviour
         isMoving = false;
     }
 
-    public virtual IMonsterState DetermineState()
+    protected MonsterState DetermineState()
     {
-        if (playerAcm.IsAlive)
-        {
-            float distanceToPlayer = Vector3.Distance(playerTransform.position, rb.position);
-            float distanceFromStart = Vector3.Distance(rb.position, startPosition);
+        float distanceToPlayer = Vector3.Distance(playerTransform.position, rb.position);
+        float distanceFromStart = Vector3.Distance(rb.position, startPosition);
 
-            if (playerAcm.IsAlive && distanceToPlayer <= monsterStats.GetStat(FloatStatInfoType.DetectionRadius))
-            {
-                acm.currentTarget = playerAcm;
-                currentDestination = playerTransform.position;
-                if (currentState != pursueState)
-                {
-                    return pursueState;
-                }
-            }
-            else if (distanceFromStart > monsterStats.GetStat(FloatStatInfoType.ReturnRadius))
-            {
-                acm.currentTarget = null;
-                currentDestination = startPosition;
-                if (currentState != returnState)
-                {
-                    return returnState;
-                }
-            }
-            else
-            {
-                acm.currentTarget = null;
-                if (currentState != idleState)
-                {
-                    return idleState;
-                }
-            }
+        if (distanceToPlayer <= monsterStats.GetStat(IntStatInfoType.DetectionRadius))
+        {
+            acm.currentTarget = playerAcm;
+            currentDestination = playerTransform.position;
+            return MonsterState.Pursue;
         }
-        else
+        if (distanceFromStart > monsterStats.GetStat(IntStatInfoType.ReturnRadius))
         {
             acm.currentTarget = null;
-            if (currentState != idleState)
-            {
-                return idleState;
-            }
+            currentDestination = startPosition;
+            return MonsterState.Return;
         }
-        return idleState;
-    }
 
-    private void ChangeState(IMonsterState newState)
-    {
-        currentState = newState;
+        acm.currentTarget = null;
+        return MonsterState.Idle;
     }
 
     protected enum MonsterState
@@ -354,8 +347,8 @@ public class Monster : MonoBehaviour
         }
         else
         {
+            
             playerAcm.currentTarget = acm;
-            OnAttackedAction?.Invoke();
             Debug.Log($"Player target set to {gameObject.name}.");
         }
     }
@@ -367,15 +360,11 @@ public class Monster : MonoBehaviour
 
         if (isMoving)
         {
-            newAnimationState =
-                MovementConstants.MOVE_ANIMATION_STATES
-                    [currentDirectionIndex]; // Use the index to select the correct moving animation
+            newAnimationState = MovementConstants.MOVE_ANIMATION_STATES[currentDirectionIndex]; // Use the index to select the correct moving animation
         }
         else
         {
-            newAnimationState =
-                MovementConstants.IDLE_ANIMATION_STATES
-                    [currentDirectionIndex]; // Use the index to select the correct idle animation
+            newAnimationState = MovementConstants.IDLE_ANIMATION_STATES[currentDirectionIndex]; // Use the index to select the correct idle animation
         }
 
         if (currentAnimationState == newAnimationState)
@@ -385,6 +374,19 @@ public class Monster : MonoBehaviour
         currentAnimationState = newAnimationState;
     }
 
+    private void DrawDebugPath(NavMeshPath path, Color color, float duration)
+    {
+        if (path == null || path.corners.Length == 0)
+        {
+            return;
+        }
+
+        for (int i = 0; i < path.corners.Length - 1; i++)
+        {
+            Debug.DrawLine(path.corners[i], path.corners[i + 1], color, duration);
+        }
+    }
+    
     void DrawDebugCircle(Vector2 center, float radius, Color color, float duration = 0.5f, int segments = 36)
     {
         float angleStep = 360.0f / segments;
@@ -405,46 +407,9 @@ public class Monster : MonoBehaviour
         // Connect the last point with the start point for a complete circle
         Debug.DrawLine(lastPoint, startPoint, color, duration);
     }
-}
-
-public interface IMonsterState
-{
-    IMonsterState Execute(Monster monster);
-}
-
-public class IdleState : IMonsterState
-{
-    public virtual IMonsterState Execute(Monster monster)
+    
+    private void OnDestroy()
     {
-        if (!monster.isMoving)
-        {
-            monster.MoveInRandomDirection();
-        }
-        return monster.DetermineState();
-
-    }
-}
-public class PursueState : IMonsterState
-{
-    public virtual IMonsterState Execute(Monster monster)
-    {
-        if (!monster.isMoving)
-        {
-            monster.FollowPathTowards(monster.currentDestination);
-        }
-        return monster.DetermineState();
-
-    }
-}
-public class ReturnState : IMonsterState
-{
-    public virtual IMonsterState Execute(Monster monster)
-    {
-        if (!monster.isMoving)
-        {
-            monster.FollowPathTowards(monster.startPosition);
-        }
-        return monster.DetermineState();
-
+        OnMonsterDestroyed?.Invoke(this);
     }
 }

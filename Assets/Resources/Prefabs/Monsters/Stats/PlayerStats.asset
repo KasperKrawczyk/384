@@ -13,17 +13,40 @@ MonoBehaviour:
   m_Name: PlayerStats
   m_EditorClassIdentifier: 
   statInfo:
-  - floatStatType: 0
-    floatStatValue: 500
-  - floatStatType: 3
-    floatStatValue: 10
-  - floatStatType: 6
-    floatStatValue: 12
-  - floatStatType: 12
-    floatStatValue: 4
-  - floatStatType: 13
-    floatStatValue: 8
-  - floatStatType: 11
-    floatStatValue: 8
-  - floatStatType: 10
-    floatStatValue: 4
+    _serializedList:
+    - Key: 0
+      Value: 0
+    - Key: 1
+      Value: 1000
+    - Key: 10
+      Value: 45
+    - Key: 2
+      Value: 0
+    - Key: 3
+      Value: 0
+    - Key: 4
+      Value: 8
+    - Key: 5
+      Value: 1
+    - Key: 6
+      Value: 55
+    - Key: 7
+      Value: 30
+    - Key: 8
+      Value: 5
+    - Key: 9
+      Value: 4
+    - Key: 11
+      Value: 6
+    - Key: 12
+      Value: 15
+    - Key: 13
+      Value: 5
+    - Key: 16
+      Value: 0
+    - Key: 17
+      Value: 0
+    - Key: 18
+      Value: 0
+    - Key: 19
+      Value: 45

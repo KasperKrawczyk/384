@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour
     public GameObject userSelectionPanel;
 
     public string currentUser;
-    private const string UserDataFileName = "userData.txt";
+    private const string UserDataFileName = "userScores.txt";
     private string _userDataPath;
 
 

@@ -5,7 +5,7 @@ public class TileReservationManager : MonoBehaviour {
     
     public static TileReservationManager Instance { get; private set; }
 
-    private Dictionary<Vector2Int, Queue<GameObject>> reservationQueues = new Dictionary<Vector2Int, Queue<GameObject>>();
+    private Dictionary<Vector2Int, Queue<GameObject>> _reservationQueues = new Dictionary<Vector2Int, Queue<GameObject>>();
 
     void Awake() {
         if (Instance == null) {
@@ -15,31 +15,31 @@ public class TileReservationManager : MonoBehaviour {
         }
     }
 
-    public bool ReserveTile(Vector2Int tile, GameObject monster) {
-        if (!reservationQueues.ContainsKey(tile)) {
-            reservationQueues[tile] = new Queue<GameObject>();
+    public bool ReserveTile(Vector2Int tile, GameObject reservingObject) {
+        if (!_reservationQueues.ContainsKey(tile)) {
+            _reservationQueues[tile] = new Queue<GameObject>();
         }
 
-        var queue = reservationQueues[tile];
+        var queue = _reservationQueues[tile];
 
-        // Check if the monster is already in the queue or if it's at the front of the queue
-        if (queue.Contains(monster) || (queue.Count > 0 && queue.Peek() == monster)) {
+        // Check if the reservingObject is already in the queue or if it's at the front of the queue
+        if (queue.Contains(reservingObject) || (queue.Count > 0 && queue.Peek() == reservingObject)) {
             // Monster is already in the queue or has the reservation
             return true;
         }
 
         // Add to the queue
-        queue.Enqueue(monster);
+        queue.Enqueue(reservingObject);
 
         // Only grant reservation if it's the first in the queue
-        return queue.Peek() == monster;
+        return queue.Peek() == reservingObject;
     }
 
-    public void ReleaseTile(Vector2Int tile, GameObject monster) {
-        if (reservationQueues.ContainsKey(tile)) {
-            var queue = reservationQueues[tile];
-            if (queue.Count > 0 && queue.Peek() == monster) {
-                // Remove the monster from the queue
+    public void ReleaseTile(Vector2Int tile, GameObject reservingObject) {
+        if (_reservationQueues.ContainsKey(tile)) {
+            var queue = _reservationQueues[tile];
+            if (queue.Count > 0 && queue.Peek() == reservingObject) {
+                // Remove the reservingObject from the queue
                 queue.Dequeue();
 
                 // Optionally, notify the next in line that the tile is now available
@@ -53,12 +53,12 @@ public class TileReservationManager : MonoBehaviour {
     }
 
     public bool IsTileReserved(Vector2Int tile) {
-        return reservationQueues.ContainsKey(tile) && reservationQueues[tile].Count > 0;
+        return _reservationQueues.ContainsKey(tile) && _reservationQueues[tile].Count > 0;
     }
 
     public GameObject GetReservedBy(Vector2Int tile) {
-        if (reservationQueues.ContainsKey(tile) && reservationQueues[tile].Count > 0) {
-            return reservationQueues[tile].Peek();
+        if (_reservationQueues.ContainsKey(tile) && _reservationQueues[tile].Count > 0) {
+            return _reservationQueues[tile].Peek();
         }
         return null;
     }

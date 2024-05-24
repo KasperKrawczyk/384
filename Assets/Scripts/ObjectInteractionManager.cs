@@ -5,14 +5,6 @@ using UnityEngine.InputSystem;
 
 public class ObjectInteractionManager : MonoBehaviour, IClickable
 {
-    public enum InteractableType
-    {
-        Enemy,
-        Container,
-        Item,
-    }
-
-    [SerializeField] private InteractableType interactableType;
 
     public event Action<InputAction.CallbackContext> OnInteractableClick;
 

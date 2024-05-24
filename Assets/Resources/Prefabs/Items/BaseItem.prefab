@@ -29,7 +29,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2146247899584220414}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 65300.32}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -52,7 +52,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c549c63ebb2d4f17b0ad4cb1ea42aefa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  interactableType: 0
 --- !u!222 &1023798456093219452
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -104,6 +103,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   originalParent: {fileID: 0}
+  canvas: {fileID: 0}
 --- !u!114 &6905104176874785105
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -117,5 +117,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseInfo: {fileID: 0}
+  useEffectPrefab: {fileID: 0}
   spm: {fileID: 0}
-  stackSize: 0
+  image: {fileID: 0}
+  count: 0
+  idm: {fileID: 0}

@@ -111,7 +111,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1920
   moveSpeed: 14.11
-  animator: {fileID: 0}
   oim: {fileID: 0}
   mbi: {fileID: 11400000, guid: d9b7c0b421ea0834e96116cd56d8dac0, type: 2}
 --- !u!95 &6704806702554485238
@@ -249,7 +248,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c549c63ebb2d4f17b0ad4cb1ea42aefa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  interactableType: 0
 --- !u!114 &8302477644615197321
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -276,7 +274,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd61ee7dedf2431ba2ba83d7ff41fb2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  curExperiencePoints: 0
+  skillTypeToSkillLevel:
+    _serializedList: []
+  skillTypeToSkillProgression:
+    _serializedList: []
+  skillTypeToSkillNextLevel:
+    _serializedList: []
 --- !u!114 &8631604908003564118
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -291,28 +294,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   combatCapabilities: -1
   corpsePrefab: {fileID: 0}
+  overheadDisplayPrefab: {fileID: 1269475312101245148, guid: 43f4c9ea834215b4eb706e827daff517, type: 3}
+  overheadDisplayInstance: {fileID: 0}
+  worldCanvas: {fileID: 0}
   healthDisplayManager: {fileID: 0}
-  statsManager: {fileID: 0}
+  overheadDisplayManager: {fileID: 0}
   maxHealth: 0
   maxMeleeDamage: 1
   minMeleeDamage: 1
   maxRangedDamage: 1
   minRangedDamage: 1
-  meleeRange: 1
+  meleeRange: 1.5
   minRangeDistance: 2
   maxRangeDistance: 5
+  mbi: {fileID: 0}
   actorStats: {fileID: 11400000, guid: c4f9bfa17cb6ccb419b1b6adca96454f, type: 2}
   attackCooldown: 1
-  canAttack: 1
   meleeEffectPrefab: {fileID: 0}
   hitTakenPrefab: {fileID: 0}
-  hitParriedPrefab: {fileID: 0}
+  hitDeflectedPrefab: {fileID: 0}
   rangeEffectPrefab: {fileID: 0}
   _currentTarget: {fileID: 0}
+  statsManager: {fileID: 0}
   weaponSlot: {fileID: 0}
   armourSlot: {fileID: 0}
   bootsSlot: {fileID: 0}
   shieldSlot: {fileID: 0}
+  canAttack: 1
 --- !u!1 &1316433520894629583
 GameObject:
   m_ObjectHideFlags: 0

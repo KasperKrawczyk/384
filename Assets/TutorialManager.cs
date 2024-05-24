@@ -18,9 +18,9 @@ public class TutorialManager : MonoBehaviour
         tutorialText = tutorialPanel.GetComponentInChildren<TextMeshProUGUI>();
         tutorialText.text = "Use WSAD to move.";
 
-        PlayerController.OnMoveAction += InvokeMovementAction;
-        CorpseManager.OnOpenedAction += EnableAttackTutorial;
-        Monster.OnAttackedAction += EndTutorial;
+        // PlayerController.OnMoveAction += InvokeMovementAction;
+        // CorpseManager.OnOpenedAction += EnableAttackTutorial;
+        // Monster.OnAttackedAction += EndTutorial;
 
     }
 
@@ -47,7 +47,7 @@ public class TutorialManager : MonoBehaviour
     {
         if (movementComplete)
         {
-            CorpseManager.CanOpen = true;
+            // CorpseManager.CanOpen = true;
             tutorialText.text = "Left click on a corpse to loot it.\nDrag items to your inventory slots.";
         }
     }

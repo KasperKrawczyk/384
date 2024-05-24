@@ -11,7 +11,7 @@ PrefabInstance:
     - target: {fileID: 2965464758998001242, guid: 8e241b3390f0e4b4bb0a615044c68fd5, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: e50b0b02941eb9244a640f8d25e0b035, type: 2}
+      objectReference: {fileID: 9100000, guid: 7210db7426eb21a4cbf3711b61df2bc4, type: 2}
     - target: {fileID: 4903662685325695171, guid: 8e241b3390f0e4b4bb0a615044c68fd5, type: 3}
       propertyPath: m_Name
       value: HitTaken

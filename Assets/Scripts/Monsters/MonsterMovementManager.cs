@@ -17,7 +17,7 @@
 // {
 //     protected Rigidbody2D rb { get; private set; }
 //     [SerializeField] protected MonsterBaseInfo mbi;
-//     public FloatStats monsterStats;
+//     public IntStats monsterStats;
 //     const float OverlapCircleRadius = 0.45f;
 //     [SerializeField] protected Animator animator;
 //     [SerializeField] protected ObjectInteractionManager oim;
@@ -73,7 +73,7 @@
 //         pcm.corpsePrefab = mbi.corpsePrefab;
 //         startPosition = rb.position;
 //         currentDirectionIndex = 3;
-//         moveSpeed = monsterStats.GetStat(FloatStatInfoType.MoveSpeed);
+//         moveSpeed = monsterStats.GetIntStat(IntStatInfoType.MoveSpeed);
 //         nmp = new NavMeshPath();
 //         gm = GridManager.instance;
 //         trm = TileReservationManager.Instance;
@@ -285,13 +285,13 @@
 //         float distanceToPlayer = Vector3.Distance(playerTransform.position, rb.position);
 //         float distanceFromStart = Vector3.Distance(rb.position, startPosition);
 //
-//         if (distanceToPlayer <= monsterStats.GetStat(FloatStatInfoType.DetectionRadius))
+//         if (distanceToPlayer <= monsterStats.GetIntStat(IntStatInfoType.DetectionRadius))
 //         {
 //             pcm.currentTarget = playerAcm;
 //             currentDestination = playerTransform.position;
 //             return MonsterState.Pursue;
 //         }
-//         if (distanceFromStart > monsterStats.GetStat(FloatStatInfoType.ReturnRadius))
+//         if (distanceFromStart > monsterStats.GetIntStat(IntStatInfoType.ReturnRadius))
 //         {
 //             pcm.currentTarget = null;
 //             currentDestination = startPosition;

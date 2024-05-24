@@ -12,7 +12,6 @@ using UnityEngine.UIElements;
 ]
 public class PlayerController : MonoBehaviour
 {
-    public static event Action<Vector2> OnMoveAction;
     public static PlayerController Instance;
 
     [Header("Movement")]
@@ -48,6 +47,7 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         oim = GetComponent<ObjectInteractionManager>();
         pcm = GetComponent<PlayerCombatManager>();
+        pcm.mbi = mbi;
         SetCanAttack(false);
         currentTarget = rb.position;
         currentDirectionIndex = 3;
@@ -61,7 +61,6 @@ public class PlayerController : MonoBehaviour
         movementInputVec = value.Get<Vector2>();
         if (movementInputVec != Vector2.zero && !isMoving)
         {
-            OnMoveAction?.Invoke(movementInputVec);
             SetNewTarget(movementInputVec);
         }
     }

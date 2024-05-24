@@ -18,7 +18,6 @@ GameObject:
   - component: {fileID: 1356237217988978028}
   - component: {fileID: 8475447013279557068}
   - component: {fileID: 473151011447353138}
-  - component: {fileID: 172744785749263516}
   m_Layer: 10
   m_Name: Monster
   m_TagString: Untagged
@@ -200,24 +199,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   combatCapabilities: -1
   corpsePrefab: {fileID: 0}
-  actorHealthBarPrefab: {fileID: 0}
-  canvas: {fileID: 4813333521361466996, guid: 6f2975721146bae4d9f8782059627a63, type: 3}
+  overheadDisplayPrefab: {fileID: 1269475312101245148, guid: 43f4c9ea834215b4eb706e827daff517, type: 3}
+  overheadDisplayInstance: {fileID: 0}
+  worldCanvas: {fileID: 0}
   healthDisplayManager: {fileID: 0}
-  statsManager: {fileID: 0}
+  overheadDisplayManager: {fileID: 0}
   maxHealth: 0
   maxMeleeDamage: 1
   minMeleeDamage: 1
   maxRangedDamage: 1
   minRangedDamage: 1
-  meleeRange: 1
+  meleeRange: 1.5
   minRangeDistance: 2
   maxRangeDistance: 5
+  mbi: {fileID: 0}
   actorStats: {fileID: 0}
   attackCooldown: 1
-  canAttack: 1
   meleeEffectPrefab: {fileID: 0}
   hitTakenPrefab: {fileID: 1621561221405557301, guid: 08c517b342a7d3d4090fdbbf1721d489, type: 3}
-  hitParriedPrefab: {fileID: 0}
+  hitDeflectedPrefab: {fileID: 0}
   rangeEffectPrefab: {fileID: 0}
   _currentTarget: {fileID: 0}
 --- !u!114 &5909926097552836384
@@ -232,7 +232,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c549c63ebb2d4f17b0ad4cb1ea42aefa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  interactableType: 0
 --- !u!114 &1356237217988978028
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -304,21 +303,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53ac523288178c54fb6b4040a60dc27d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actorTransform: {fileID: 0}
-  canvas: {fileID: 0}
   healthFillImage: {fileID: 0}
-  healthFillImageUI: {fileID: 0}
   healthText: {fileID: 0}
---- !u!114 &172744785749263516
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4918924736877175894}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cd61ee7dedf2431ba2ba83d7ff41fb2b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  curExperiencePoints: 0

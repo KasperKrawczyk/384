@@ -13,27 +13,44 @@ MonoBehaviour:
   m_Name: SkeletonArcherStats
   m_EditorClassIdentifier: 
   statInfo:
-  - floatStatType: 0
-    floatStatValue: 125
-  - floatStatType: 1
-    floatStatValue: 8
-  - floatStatType: 2
-    floatStatValue: 50
-  - floatStatType: 3
-    floatStatValue: 4
-  - floatStatType: 4
-    floatStatValue: 35
-  - floatStatType: 5
-    floatStatValue: 6
-  - floatStatType: 6
-    floatStatValue: 12
-  - floatStatType: 7
-    floatStatValue: 6
-  - floatStatType: 10
-    floatStatValue: 4
-  - floatStatType: 11
-    floatStatValue: 8
-  - floatStatType: 8
-    floatStatValue: 8
-  - floatStatType: 9
-    floatStatValue: 3
+    _serializedList:
+    - Key: 0
+      Value: 0
+    - Key: 1
+      Value: 105
+    - Key: 10
+      Value: 25
+    - Key: 2
+      Value: 0
+    - Key: 3
+      Value: 0
+    - Key: 4
+      Value: 6
+    - Key: 5
+      Value: 0
+    - Key: 6
+      Value: 55
+    - Key: 7
+      Value: 38
+    - Key: 8
+      Value: 5
+    - Key: 9
+      Value: 2
+    - Key: 11
+      Value: 6
+    - Key: 12
+      Value: 15
+    - Key: 13
+      Value: 5
+    - Key: 16
+      Value: 0
+    - Key: 17
+      Value: 55
+    - Key: 18
+      Value: 0
+    - Key: 19
+      Value: 0
+    - Key: 15
+      Value: 3
+    - Key: 14
+      Value: 7

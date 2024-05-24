@@ -4,6 +4,9 @@ using UnityEngine;
 public class InventoryManager : MonoBehaviour
 {
     private static InventoryManager _instance;
+
+    [SerializeField] public Canvas uiCanvas;
+    [SerializeField] public GameObject transferSliderPrefab;
     
     // debug
     [SerializeField] private BaseItem[] items; 
@@ -20,10 +23,40 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
-    private void Awake()
+    public void ShowTransferSlider(ContainerPanelManager cpm, int slotIndex, BaseItem sourceItem, BaseItem targetItem)
     {
-        // Debug.Log("items[0] = " + items[0]);
-        // ContainerItem bag = (ContainerItem) Instantiate(items[0]);
-        // bag.Initialise();
+        GameObject sliderUI = Instantiate(transferSliderPrefab, uiCanvas.transform);
+        ItemTransferSliderManager itemTransferSlider = sliderUI.GetComponent<ItemTransferSliderManager>();
+        itemTransferSlider.Initialize(cpm, slotIndex, sourceItem, targetItem, sourceItem.count);
+    }
+    
+    public void TransferWithoutSlider(ContainerPanelManager cpm, int slotIndex, BaseItem sourceItem, BaseItem targetItem)
+    {
+        int transferCount = sourceItem.count;
+
+        if (transferCount > 0)
+        {
+            if (targetItem && targetItem.count + transferCount > 100)
+            {
+                int spaceAvailable = 100 - targetItem.count;
+                targetItem.SetCount(100);
+                transferCount -= spaceAvailable;
+                sourceItem.SetCount(sourceItem.count - transferCount);
+                transferCount = cpm.DistributeStackable(sourceItem.gameObject, transferCount);
+            }
+            else if (targetItem && targetItem.count + transferCount <= 100)
+            {
+                targetItem.SetCount(targetItem.count + transferCount);
+                sourceItem.SetCount(sourceItem.count - transferCount);    
+            }
+            else if (!targetItem)
+            {
+                cpm.Slots[slotIndex].GetComponent<SlotPanelManager>().SetCurrentItem(sourceItem.gameObject);
+                
+            }
+            
+
+        }
+
     }
 }

@@ -64,9 +64,9 @@ public class ContainerItem : BaseItem
     }
 
 
-    public void TransferItems(List<GameObject> lootPrefabs)
+    public void TransferLootPairs(List<(string, int)> lootIdAndQtyPairs)
     {
-        cpm.AddPrefabsToInstantiate(lootPrefabs);
+        cpm.AddLootToInstantiate(lootIdAndQtyPairs);
 
     }
 }

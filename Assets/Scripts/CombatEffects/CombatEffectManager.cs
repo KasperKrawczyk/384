@@ -7,7 +7,7 @@ using UnityEngine;
 ]
 public class CombatEffectManager : MonoBehaviour
 {
-    public Animator animator { get; private set; }
+    public Animator animator { get; set; }
     // Start is called before the first frame update
     void Start()
     {

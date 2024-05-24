@@ -17,7 +17,7 @@ namespace DefaultNamespace
 
         public static string[] MOVE_ANIMATION_STATES =
         {
-            "MoveUp", "MoveUp", "MoveRight", "MoveDown", "MoveDown", "MoveDown", "MoveLeft", "MoveUp"
+            "MoveUp", "MoveRight", "MoveRight", "MoveRight", "MoveDown", "MoveLeft", "MoveLeft", "MoveLeft"
         };
         
 

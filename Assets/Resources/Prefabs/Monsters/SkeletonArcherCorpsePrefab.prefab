@@ -16,6 +16,10 @@ PrefabInstance:
       propertyPath: dropTable
       value: 
       objectReference: {fileID: 11400000, guid: f3c152d7fcf44a446b9c1589c41581f1, type: 2}
+    - target: {fileID: 423294004403828016, guid: 16d87abdffd57ae4bb08a9e02fe32b08, type: 3}
+      propertyPath: monsterName
+      value: SkeletonArcher
+      objectReference: {fileID: 0}
     - target: {fileID: 514141829932159694, guid: 16d87abdffd57ae4bb08a9e02fe32b08, type: 3}
       propertyPath: m_Name
       value: SkeletonArcherCorpsePrefab

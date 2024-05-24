@@ -1,25 +1,21 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using DefaultNamespace;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 
 [
     RequireComponent(typeof(ObjectInteractionManager))
 ]
 public class CorpseManager : MonoBehaviour
 {
-    public static event Action OnOpenedAction;
-    public static bool CanOpen = false;
     public static float MinDistanceToPlayer = 1.5f;
 
     
     [SerializeField] private GameObject corpseContainerPrefab;
     [SerializeField] private GameObject thisContainerPrefab;
     [SerializeField] private DropTable dropTable;
-    [FormerlySerializedAs("loot")] [SerializeField] private List<GameObject> lootPrefabs;
+    [SerializeField] private string monsterName;
+    [SerializeField] private List<(string, int)> lootIdAndQtyPairs;
 
     private Transform playerTransform;
     private BoxCollider2D _bc;
@@ -36,12 +32,12 @@ public class CorpseManager : MonoBehaviour
         _oim = GetComponent<ObjectInteractionManager>();
         _oim.OnInteractableClick += OnClick;
         Destroy(gameObject, CorpseDestroyTime);
-        
+        dropTable = AssetsDB.Instance.dropTableDictionary[monsterName];
         thisContainerPrefab = Instantiate(corpseContainerPrefab, transform.position, Quaternion.identity, transform);
         thisContainerPrefab.GetComponent<ContainerItem>().image.sprite = GetComponentInParent<SpriteRenderer>().sprite;
         thisContainerPrefab.GetComponent<ContainerItem>().Initialise();
         InitialiseLoot();
-        thisContainerPrefab.GetComponent<ContainerItem>().TransferItems(lootPrefabs);
+        thisContainerPrefab.GetComponent<ContainerItem>().TransferLootPairs(lootIdAndQtyPairs);
         isOpen = false;
     }
     
@@ -54,27 +50,35 @@ public class CorpseManager : MonoBehaviour
                 ToggleOpenClose();
                 yield break;
             }
-            yield return new WaitForSeconds(.25f); // Check every half second
+            yield return new WaitForSeconds(.5f); // Check every half second
         }
     }
     
     private void InitialiseLoot()
     {
-        lootPrefabs = new List<GameObject>();
+        lootIdAndQtyPairs = new List<(string, int)>();
 
         int i = 0;
         foreach (DropStatInfo dsi in dropTable.dropStatInfoList)
         {
-            if (UnityEngine.Random.Range(0f, 1f) <= dsi.prob)
+            if (Random.Range(0f, 1f) <= dsi.prob)
             {
-                GameObject itemPrefab = Resources.Load<GameObject>($"{dsi.address}");
+                // GameObject itemPrefab = Resources.Load<GameObject>("Prefabs/Items/BaseItem");
+                // BaseInfo baseInfo = AssetsDB.Instance.baseInfoDictionary[dsi.itemId];
+                // itemPrefab.GetComponent<BaseItem>().InitialiseFromBaseInfo(baseInfo);
+                int count = dsi.qty;
+                if (dsi.qty > 1)
+                {
+                    count = Random.Range(0, dsi.qty + 1);
+                    
+                }
                 // GameObject itemInstance = Instantiate(itemPrefab, transform.position, Quaternion.identity);
-                lootPrefabs.Add(itemPrefab);
+                if (count > 0) lootIdAndQtyPairs.Add((dsi.itemId, count));
             }
 
             i++;
         }
-        CollectionUtils.Shuffle(lootPrefabs);
+        CollectionUtils.Shuffle(lootIdAndQtyPairs);
     }
     
     public void OnClick(InputAction.CallbackContext context)
@@ -90,8 +94,6 @@ public class CorpseManager : MonoBehaviour
     
     public void ToggleOpenClose()
     {
-        if (!CanOpen) return;
-        OnOpenedAction?.Invoke();
 
         Debug.Log("in ToggleOpenClose");
         if (!isOpen)

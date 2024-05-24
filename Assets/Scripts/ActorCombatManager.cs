@@ -7,10 +7,9 @@ using UnityEngine.Serialization;
 using Random = System.Random;
 
 [
-    RequireComponent(typeof(HealthBarManager)),
-    RequireComponent(typeof(StatsManager))
+    RequireComponent(typeof(HealthBarManager))
 ]
-public class ActorCombatManager : MonoBehaviour, IAttackable, IDamageable
+public class ActorCombatManager : MonoBehaviour, IDamageable
 {
     
     [Flags]
@@ -23,9 +22,12 @@ public class ActorCombatManager : MonoBehaviour, IAttackable, IDamageable
 
     [SerializeField] protected CombatType combatCapabilities = CombatType.Melee | CombatType.Ranged; // Default to both
     [SerializeField] public GameObject corpsePrefab;
-    
+    [SerializeField] public GameObject overheadDisplayPrefab;
+    [SerializeField] public GameObject overheadDisplayInstance;
+    [SerializeField] public Canvas worldCanvas;
+
     [SerializeReference] public AHealthDisplayer healthDisplayManager;
-    [SerializeReference] public StatsManager statsManager;
+    [SerializeField] public OverheadDisplayManager overheadDisplayManager;
 
     [SerializeField] protected Random rng = new Random();
     [SerializeField] public int maxHealth;
@@ -34,19 +36,19 @@ public class ActorCombatManager : MonoBehaviour, IAttackable, IDamageable
     [SerializeField] protected int minMeleeDamage = 1;
     [SerializeField] protected int maxRangedDamage = 1;
     [SerializeField] protected int minRangedDamage = 1;
-    [SerializeField] protected float meleeRange = 1f;
+    [SerializeField] protected float meleeRange = 2f;
     [SerializeField] protected float minRangeDistance = 2f; // Minimum for ranged attack
     [SerializeField] protected float maxRangeDistance = 5f; // Maximum for ranged attack
-    [SerializeField] public FloatStats actorStats;
+    [SerializeField] public MonsterBaseInfo mbi;
+    [SerializeField] public IntStats actorStats;
 
     [SerializeField] private float attackCooldown = 1f; // Time between attacks
 
-    [SerializeField] private bool canAttack = true;
     [SerializeField] public bool IsAlive { get; protected set; } = true;
 
     [SerializeField] protected GameObject meleeEffectPrefab; 
     [SerializeField] protected GameObject hitTakenPrefab;
-    [SerializeField] protected GameObject hitParriedPrefab;
+    [SerializeField] protected GameObject hitDeflectedPrefab;
     [SerializeField] protected GameObject rangeEffectPrefab;
     [SerializeField] protected ActorCombatManager _currentTarget;
     public ActorCombatManager currentTarget
@@ -86,20 +88,22 @@ public class ActorCombatManager : MonoBehaviour, IAttackable, IDamageable
 
     public Rigidbody2D rb { get; private set; }
 
-    public void Awake()
+    public virtual void Awake()
     {
-        statsManager = GetComponent<StatsManager>();
-        healthDisplayManager = GetComponent<HealthBarManager>();
-        maxHealth = (int) actorStats.GetStat(FloatStatInfoType.Health);
-        maxMeleeDamage = (int) actorStats.GetStat(FloatStatInfoType.MaxMeleeDamage);
-        minMeleeDamage = (int) actorStats.GetStat(FloatStatInfoType.MinMeleeDamage);
-        maxRangedDamage = (int) actorStats.GetStat(FloatStatInfoType.MaxRangedDamage);
-        minRangedDamage = (int) actorStats.GetStat(FloatStatInfoType.MinRangedDamage);
+        worldCanvas = GameObject.Find("GameCanvas").GetComponent<Canvas>();
+        maxHealth = (int) actorStats.GetStat(IntStatInfoType.Health);
+        maxMeleeDamage = (int) actorStats.GetStat(IntStatInfoType.MaxMeleeDamage);
+        minMeleeDamage = (int) actorStats.GetStat(IntStatInfoType.MinMeleeDamage);
+        maxRangedDamage = (int) actorStats.GetStat(IntStatInfoType.MaxRangedDamage);
+        minRangedDamage = (int) actorStats.GetStat(IntStatInfoType.MinRangedDamage);
         curHealth = maxHealth;
         rb = GetComponent<Rigidbody2D>();
-        UpdateHealthDisplayManager(curHealth);
     }
 
+    protected virtual void Start()
+    {
+        InitialiseOverheadDisplay();
+    }
 
     void Update()
     {
@@ -134,11 +138,13 @@ public class ActorCombatManager : MonoBehaviour, IAttackable, IDamageable
 
     public virtual void TakeDamage(DamageType damageType, int damageSent)
     {
-        // Here run the defence checks
         SpawnPrefabHere(hitTakenPrefab);
-        curHealth -= damageSent;
-        UpdateHealthDisplayManager(curHealth);
-        if (curHealth < 0)
+        int damageSuffered = MonsterCombatMathUtils.GetDamageSuffered(damageSent, actorStats.GetStat(IntStatInfoType.Armour));
+        Debug.Log($"{this.name} got sent {damageSent}. It suffered {damageSuffered} damage.");
+        curHealth -= damageSuffered;
+        curHealth = Math.Max(curHealth, 0);
+        overheadDisplayManager.UpdateHealth(actorStats.GetStat(IntStatInfoType.Health), curHealth);
+        if (curHealth == 0)
         {
             Die();
         }
@@ -160,26 +166,26 @@ public class ActorCombatManager : MonoBehaviour, IAttackable, IDamageable
         }
     }
 
-    public void Attack()
-    {
-        if (currentTarget == null) return;
-    
-        
-        if (IsTargetInMeleeRange())
-        {
-            // Perform melee attack
-            SpawnMeleeEffect();
-            // Apply damage, etc.
-            currentTarget.TakeDamage(DamageType.PhysicalDamage, rng.Next(minMeleeDamage, maxMeleeDamage));
-        }
-        else if (IsTargetInRangedAttackRange())
-        {
-            // Perform ranged attack
-            SpawnRangedEffect();
-            // Apply damage, etc.
-            currentTarget.TakeDamage(DamageType.PhysicalDamage, rng.Next(minRangedDamage, maxRangedDamage));
-        }
-    }
+    // public void Attack()
+    // {
+    //     if (currentTarget == null) return;
+    //
+    //     
+    //     if (IsTargetInMeleeRange())
+    //     {
+    //         // Perform melee attack
+    //         SpawnMeleeEffect();
+    //         // Apply damage, etc.
+    //         currentTarget.TakeDamage(DamageType.PhysicalDamage, rng.Next(minMeleeDamage, maxMeleeDamage));
+    //     }
+    //     else if (IsTargetInRangedAttackRange())
+    //     {
+    //         // Perform ranged attack
+    //         SpawnRangedEffect();
+    //         // Apply damage, etc.
+    //         currentTarget.TakeDamage(DamageType.PhysicalDamage, rng.Next(minRangedDamage, maxRangedDamage));
+    //     }
+    // }
 
     protected virtual void SpawnMeleeEffect()
     {
@@ -257,7 +263,7 @@ public class ActorCombatManager : MonoBehaviour, IAttackable, IDamageable
         if (IsTargetInMeleeRange() && combatCapabilities.HasFlag(CombatType.Melee))
         {
             
-            SpawnMeleeEffect();
+            // SpawnMeleeEffect();
             currentTarget.TakeDamage(DamageType.PhysicalDamage, rng.Next(minMeleeDamage, maxMeleeDamage));
         }
         else if (IsTargetInRangedAttackRange() && combatCapabilities.HasFlag(CombatType.Ranged))
@@ -278,26 +284,27 @@ public class ActorCombatManager : MonoBehaviour, IAttackable, IDamageable
         GameObject thisGameObject = gameObject;
         Vector3 transformPosition = transform.position;
         Vector2 corpsePosition = new Vector2(Mathf.Floor(transformPosition.x) + .5f, Mathf.Floor(transformPosition.y) + .5f);
-        PlayerController.Instance.GetStatsManager().curExperiencePoints += (int) actorStats.GetStat(FloatStatInfoType.Experience);
+        // PlayerController.Instance.GetStatsManager().curExperiencePoints += (int) actorStats.GetIntStat(IntStatInfoType.Experience);
         Instantiate(corpsePrefab, corpsePosition, Quaternion.identity);
+        Destroy(overheadDisplayInstance);
         Destroy(thisGameObject);
     }
     
-    public void SetCanAttack(bool canAttack)
-    {
-        this.canAttack = canAttack;
-    }
 
-    protected void UpdateHealthDisplayManager(int curHealth)
-    {
-        if (healthDisplayManager != null)
-        {
-            healthDisplayManager.UpdateHealth(maxHealth, curHealth);
-        }
-    }
 
-    public void ReceiveExperience(int experienceSent)
+    private void InitialiseOverheadDisplay()
     {
-        this.statsManager.AddExperiencePoints(experienceSent);
+        overheadDisplayInstance = Instantiate(overheadDisplayPrefab);
+        
+        overheadDisplayInstance.transform.SetParent(worldCanvas.transform, false);
+
+        overheadDisplayInstance.GetComponent<RectTransform>().localPosition = new Vector3(0, 2, 0); 
+
+        overheadDisplayManager = overheadDisplayInstance.GetComponent<OverheadDisplayManager>();
+        overheadDisplayManager.nameText.text = mbi.name;
+        overheadDisplayManager.targetTransform = transform;
+        overheadDisplayManager.UpdateHealth(maxHealth, curHealth);
     }
+    
+
 }
