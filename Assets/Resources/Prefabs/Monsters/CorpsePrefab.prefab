@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1335514188549342710}
   - component: {fileID: 6303205805568777439}
   - component: {fileID: 3741666479404712033}
-  m_Layer: 6
+  m_Layer: 9
   m_Name: CorpsePrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48,6 +48,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   corpseContainerPrefab: {fileID: 6613529801575143668, guid: e0710244c6298fd48b3d161c4bb25aed, type: 3}
+  thisContainerPrefab: {fileID: 0}
+  dropTable: {fileID: 0}
+  monsterName: 
+  sprite: {fileID: 0}
 --- !u!212 &1335514188549342710
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -157,4 +161,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c549c63ebb2d4f17b0ad4cb1ea42aefa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  interactableType: 0

@@ -36,7 +36,7 @@ public class ItemTransferSliderManager : MonoBehaviour
 
     private void OnSliderValueChanged(float value)
     {
-        UpdateValueText((int)value);
+        UpdateValueText((int) value);
     }
 
     private void UpdateValueText(int value)

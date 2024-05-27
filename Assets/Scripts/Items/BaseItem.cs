@@ -1,4 +1,3 @@
-
 using System;
 using TMPro;
 using Unity.VisualScripting;
@@ -12,11 +11,12 @@ using UnityEngine.UI;
     RequireComponent(typeof(Image)),
     RequireComponent(typeof(ItemDragManager))
 ]
-
 public class BaseItem : MonoBehaviour, ICloneable
 {
     [SerializeField] public BaseInfo baseInfo;
     [SerializeField] public GameObject useEffectPrefab;
+    [SerializeField] public SpriteRenderer sr;
+    [SerializeField] public BoxCollider2D bc;
     [SerializeField] protected SlotPanelManager spm;
     [SerializeField] public Image image;
     [SerializeField] public int count;
@@ -66,18 +66,6 @@ public class BaseItem : MonoBehaviour, ICloneable
         }
     }
     
-    
-
-    // private void Start()
-    // {
-    //     if (baseInfo != null)
-    //     {
-    //         if (baseInfo.GetBoolStat(BoolStatInfoType.Usable))
-    //         {
-    //             _oim.OnInteractableClick += Use;
-    //         }
-    //     }    
-    // }
 
     public void SetCount(int count)
     {
@@ -163,4 +151,30 @@ public class BaseItem : MonoBehaviour, ICloneable
                 break;
         }    
     }
+
+    public void ToggleMapPresence(bool makePresentOnMap)
+    {
+        if (makePresentOnMap && sr == null)
+        {
+            sr = gameObject.AddComponent<SpriteRenderer>();
+            bc = gameObject.AddComponent<BoxCollider2D>();
+            bc.size = new Vector2(1, 1);
+            gameObject.layer = LayerMask.NameToLayer("Items");
+            sr.sprite = image.sprite;
+            transform.localScale = Vector3.one;
+            sr.sortingLayerName = "Background";
+            image.enabled = false;
+        }
+        else if (!makePresentOnMap)
+        {
+            if(sr) Destroy(sr);
+            if(bc) Destroy(bc);
+            GetComponent<RectTransform>().localScale = Vector3.one;
+            image.enabled = true;
+        }
+        
+
+    }
+    
+    
 }

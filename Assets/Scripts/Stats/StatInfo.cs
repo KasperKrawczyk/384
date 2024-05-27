@@ -100,7 +100,8 @@ public enum BoolStatInfoType
         ShowCharges,
         ShowAttributes,
         Container,
-        Corpse
+        Corpse,
+        AlwaysOnBottom
 }
 
 public enum ItemCategory
