@@ -1,15 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class ItemTransferSliderManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-
     public Slider slider;
     public TextMeshProUGUI countText;
     public TextMeshProUGUI maxText;
@@ -36,7 +32,7 @@ public class ItemTransferSliderManager : MonoBehaviour
 
     private void OnSliderValueChanged(float value)
     {
-        UpdateValueText((int) value);
+        UpdateValueText((int)value);
     }
 
     private void UpdateValueText(int value)
@@ -68,10 +64,7 @@ public class ItemTransferSliderManager : MonoBehaviour
                 GameObject cloned = sourceItem.CloneWithCount(transferCount);
                 sourceItem.SetCount(sourceItem.count - transferCount);
                 this.targetCpm.Slots[slotIndex].GetComponent<SlotPanelManager>().SetCurrentItem(cloned);
-                
             }
-            
-
         }
 
         Destroy(gameObject); // Close the slider UI after confirming the transfer
@@ -79,7 +72,7 @@ public class ItemTransferSliderManager : MonoBehaviour
 
     public void CancelTransfer()
     {
+         if (sourceItem != null) sourceItem.GetComponent<ItemDragManager>().ReturnToOriginalPosition();
         Destroy(gameObject); // Close the slider UI without making any changes
     }
-    
 }

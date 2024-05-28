@@ -10,7 +10,7 @@ public class TutorialManager : MonoBehaviour
     private TextMeshProUGUI tutorialText;
     private bool hasMovedUp, hasMovedDown, hasMovedLeft, hasMovedRight;
     private bool movementComplete = false;
-    private bool lootingComplete = false;
+    private bool lootingComplete;
     private bool attackDone = false;
 
     private void Start()

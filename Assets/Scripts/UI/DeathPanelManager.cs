@@ -10,13 +10,11 @@ public class DeathPanelManager : MonoBehaviour
     {
         gameObject.SetActive(IsActive);
         PlayerCombatManager.OnDieAction += ToggleDeathPanel;
-        MenuPanelManager.OnLeaveGameSceneAction += ToggleDeathPanel;
     }
     
     private void OnDestroy()
     {
         PlayerCombatManager.OnDieAction -= ToggleDeathPanel;
-        MenuPanelManager.OnLeaveGameSceneAction -= ToggleDeathPanel;
     }
 
     private void ToggleDeathPanel()

@@ -19,7 +19,7 @@ public class CorpseManager : MonoBehaviour
 
     private Transform playerTransform;
     private BoxCollider2D _bc;
-    private ObjectInteractionManager _oim;
+    public ObjectInteractionManager _oim;
     public Sprite sprite;
     private const float CorpseDestroyTime = 60f * 5;
     private bool isOpen = false;

@@ -17,6 +17,10 @@ public class OverheadDisplayManager : MonoBehaviour
 
     private void Awake()
     {
+    }
+
+    private void Start() {
+        overheadDisplayBackgroundImage.raycastTarget = false;
         healthFillImage.fillAmount = 1f;
     }
 

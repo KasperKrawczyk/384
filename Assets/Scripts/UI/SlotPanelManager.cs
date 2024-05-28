@@ -1,5 +1,5 @@
 using System;
-using DarkPixelRPGUI.Scripts.UI.Equipment;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -11,64 +11,76 @@ public class SlotPanelManager : MonoBehaviour, IDropHandler, IEndDragHandler
 
     private void Awake()
     {
-        this.cpm = GetComponentInParent<ContainerPanelManager>();
+        cpm = GetComponentInParent<ContainerPanelManager>();
     }
 
     public virtual void OnDrop(PointerEventData eventData)
     {
         GameObject droppedItem = eventData.pointerDrag;
-        if (Input.GetKey(KeyCode.LeftControl))
+        BaseItem droppedBaseItem = droppedItem.GetComponent<BaseItem>();
+
+        if (droppedBaseItem.baseInfo.GetBoolStat(BoolStatInfoType.Stackable))
         {
-            if (transform.childCount == 0 && !droppedItem.GetComponent<BaseItem>().baseInfo.GetBoolStat(BoolStatInfoType.Stackable))
+            if (transform.childCount == 0 && Input.GetKey(KeyCode.LeftControl))
             {
                 SetCurrentItem(droppedItem);
             }
-            else if (transform.childCount == 0 && droppedItem.GetComponent<BaseItem>().baseInfo.GetBoolStat(BoolStatInfoType.Stackable))
-            {
-                BaseItem droppedBaseItem = droppedItem.GetComponent<BaseItem>();
-                InventoryManager.Instance.TransferWithoutSlider(this.cpm, SlotIndex, droppedBaseItem, CurrentItem);
+            else if (IsAcceptOnStackable(droppedItem) && Input.GetKey(KeyCode.LeftControl)) {
+                InventoryManager.Instance.TransferWithoutSlider(cpm, SlotIndex, droppedBaseItem, CurrentItem);
             }
             else if (IsAcceptOnStackable(droppedItem))
             {
-                BaseItem droppedBaseItem = droppedItem.GetComponent<BaseItem>();
-                InventoryManager.Instance.TransferWithoutSlider(this.cpm, SlotIndex, droppedBaseItem, CurrentItem);
+                InventoryManager.Instance.ShowTransferSlider(cpm, SlotIndex, droppedBaseItem, CurrentItem);
             }
+            // else if (IsAcceptOnStackable(droppedItem) && !Input.GetKeyDown(KeyCode.LeftControl))
+            // {
+            //     InventoryManager.Instance.ShowTransferSlider(cpm, SlotIndex, droppedBaseItem, CurrentItem);
+            // }
+            // else if (IsAcceptOnStackable(droppedItem) && Input.GetKeyDown(KeyCode.LeftControl))
+            // {
+            //     InventoryManager.Instance.TransferWithoutSlider(cpm, SlotIndex, droppedBaseItem, CurrentItem);
+            // }
         }
         else
         {
-            if (transform.childCount == 0 && !droppedItem.GetComponent<BaseItem>().baseInfo.GetBoolStat(BoolStatInfoType.Stackable))
+            if (transform.childCount == 0)
             {
                 SetCurrentItem(droppedItem);
             }
-            else if (transform.childCount == 0 && droppedItem.GetComponent<BaseItem>().baseInfo.GetBoolStat(BoolStatInfoType.Stackable))
-            {
-                BaseItem droppedBaseItem = droppedItem.GetComponent<BaseItem>();
-                InventoryManager.Instance.ShowTransferSlider(this.cpm, SlotIndex, droppedBaseItem, CurrentItem);
-            }
-            else if (IsAcceptOnStackable(droppedItem))
-            {
-                BaseItem droppedBaseItem = droppedItem.GetComponent<BaseItem>();
-                InventoryManager.Instance.ShowTransferSlider(this.cpm, SlotIndex, droppedBaseItem, CurrentItem);
-            }
+            // else
+            // {
+            //     InventoryManager.Instance.TransferWithoutSlider(cpm, SlotIndex, droppedBaseItem, CurrentItem);
+            // }
         }
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (transform.childCount == 0 && this.cpm != null)
+        if (transform.childCount == 0 && cpm != null)
         {
-            this.cpm.getItems()[SlotIndex] = null;
+            cpm.getItems()[SlotIndex] = null;
         }
     }
+    
 
     public void SetCurrentItem(GameObject item)
     {
+        if (item == null) {
+            if (cpm != null) cpm.getItems()[SlotIndex] = null;
+            CurrentItem = null;
+            return;
+        }
         item.SetActive(true);
         ItemDragManager idm = item.GetComponent<ItemDragManager>();
         CurrentItem = item.GetComponent<BaseItem>();
+        if (CurrentItem.Spm != null && CurrentItem.Spm.transform.childCount == 0) {
+            CurrentItem.Spm.CurrentItem = null;
+        }
+        CurrentItem.Spm = this;
+        CurrentItem.ToggleMapPresence(false);
         item.transform.SetParent(transform, false);
         idm.originalParent = transform;
-        if (this.cpm != null) this.cpm.getItems()[SlotIndex] = item;
+        if (cpm != null) cpm.getItems()[SlotIndex] = item;
     }
 
     public GameObject InstantiateAndSetCurrentItem(string itemId, int count)
@@ -78,37 +90,34 @@ public class SlotPanelManager : MonoBehaviour, IDropHandler, IEndDragHandler
 
         BaseInfo baseInfo = AssetsDB.Instance.baseInfoDictionary[itemId];
         item.GetComponent<BaseItem>().InitialiseFromBaseInfo(baseInfo, count);
-        
+
         SetCurrentItem(item);
 
-
-        // idm.originalParent = transform;
-        // if (this.cpm != null) this.cpm.getItems()[SlotIndex] = item;
         return item;
     }
 
     public void SetSlotIndex(int slotIndex)
     {
-        this.SlotIndex = slotIndex;
+        SlotIndex = slotIndex;
     }
 
     public void SetContainerPanelManager(ContainerPanelManager containerPanelManager)
     {
-        this.cpm = containerPanelManager;
+        cpm = containerPanelManager;
     }
 
     public BaseItem GetCurrentItem()
     {
-        return this.CurrentItem;
+        return CurrentItem;
     }
 
     private bool IsAcceptOnStackable(GameObject droppedItem)
     {
         BaseInfo droppedBi = droppedItem.GetComponent<BaseItem>().baseInfo;
 
-        if (this.CurrentItem != null)
+        if (CurrentItem != null)
         {
-            BaseInfo curBi = this.CurrentItem.baseInfo;
+            BaseInfo curBi = CurrentItem.baseInfo;
             return curBi.itemName == droppedBi.itemName && curBi.GetBoolStat(BoolStatInfoType.Stackable) && droppedBi.GetBoolStat(BoolStatInfoType.Stackable) &&
                    CurrentItem.count < 100;
         }

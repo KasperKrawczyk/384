@@ -48,9 +48,9 @@
   "BoolStatInfo": {
     "Stackable": false,
     "Usable": false,
-    "AlwaysOnTop": false,
+    "AlwaysOnTop": true,
     "LookThrough": false,
-    "Pickupable": false,
+    "Pickupable": true,
     "Rotable": false,
     "HasHeight": false,
     "ForceSerialize": false,

@@ -6,7 +6,6 @@ using UnityEngine.SceneManagement;
 public class MenuPanelManager : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI pauseButtonText;
-    public static event Action OnLeaveGameSceneAction;
 
     public void PauseGame()
     {
