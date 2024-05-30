@@ -12,12 +12,8 @@ public class ContainerItem : BaseItem
 {
     [SerializeField] protected GameObject containerParentPanelPrefab;
     [SerializeField] protected ContainerPanelManager cpm;
-    [SerializeField] protected ContainerButtonManager cbm;
-    [SerializeField] protected ContainerStats containerStats;
-    private ContainerInitialiser _ci;
     
     // private ObjectInteractionManager _oim;
-    private CanvasGroup _cv;
     private bool isOpen = false;
     public GameObject ThisContainer { private set; get; }
     
@@ -30,19 +26,17 @@ public class ContainerItem : BaseItem
     public void Start()
     {
         // _oim = GetComponent<ObjectInteractionManager>();
-        _cv = GetComponent<CanvasGroup>();
-        cbm = GetComponent<ContainerButtonManager>();
         cpm = GetComponent<ContainerPanelManager>();
         // _oim.OnInteractableClick += OnClick;
         
     }
 
-    public void Initialise()
+    public void Initialise(int numSlots)
     {
         ThisContainer = Instantiate(containerParentPanelPrefab, InventoryManager.Instance.transform);
         cpm = ThisContainer.transform.Find("ContainerPanel").GetComponent<ContainerPanelManager>();
         ThisContainer.SetActive(false);
-        cpm.Initialise(containerStats.numSlots);
+        cpm.Initialise(numSlots);
 
     }
     

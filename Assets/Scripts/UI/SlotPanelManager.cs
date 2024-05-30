@@ -17,8 +17,11 @@ public class SlotPanelManager : MonoBehaviour, IDropHandler, IEndDragHandler
     public virtual void OnDrop(PointerEventData eventData)
     {
         GameObject droppedItem = eventData.pointerDrag;
+        if (IsThisContainer(droppedItem)) {
+            return;
+        }
         BaseItem droppedBaseItem = droppedItem.GetComponent<BaseItem>();
-
+        
         if (droppedBaseItem.baseInfo.GetBoolStat(BoolStatInfoType.Stackable))
         {
             if (transform.childCount == 0 && Input.GetKey(KeyCode.LeftControl))
@@ -63,8 +66,7 @@ public class SlotPanelManager : MonoBehaviour, IDropHandler, IEndDragHandler
     }
     
 
-    public void SetCurrentItem(GameObject item)
-    {
+    public void SetCurrentItem(GameObject item) {
         if (item == null) {
             if (cpm != null) cpm.getItems()[SlotIndex] = null;
             CurrentItem = null;
@@ -73,13 +75,13 @@ public class SlotPanelManager : MonoBehaviour, IDropHandler, IEndDragHandler
         item.SetActive(true);
         ItemDragManager idm = item.GetComponent<ItemDragManager>();
         CurrentItem = item.GetComponent<BaseItem>();
+        item.transform.SetParent(transform, false);
         if (CurrentItem.Spm != null && CurrentItem.Spm.transform.childCount == 0) {
             CurrentItem.Spm.CurrentItem = null;
         }
         CurrentItem.Spm = this;
         CurrentItem.ToggleMapPresence(false);
-        item.transform.SetParent(transform, false);
-        idm.originalParent = transform;
+        // idm.originalParent = transform;
         if (cpm != null) cpm.getItems()[SlotIndex] = item;
     }
 
@@ -125,5 +127,9 @@ public class SlotPanelManager : MonoBehaviour, IDropHandler, IEndDragHandler
         {
             return droppedBi.GetBoolStat(BoolStatInfoType.Stackable);
         }
+    }
+
+    private bool IsThisContainer(GameObject droppedItemObject) {
+        return droppedItemObject == this.gameObject.transform.parent.gameObject;
     }
 }

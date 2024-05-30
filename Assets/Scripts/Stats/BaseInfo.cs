@@ -17,6 +17,7 @@ public class BaseInfo : ScriptableObject
     public string description;
     public string spriteId;
     public string useEffectId;
+    public string monsterName;
     
     public int GetIntStat(IntStatInfoType intStatInfoType)
     {

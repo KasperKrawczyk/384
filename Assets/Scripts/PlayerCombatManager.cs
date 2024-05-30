@@ -35,7 +35,7 @@ public class PlayerCombatManager : ActorCombatManager
     protected override void Start()
     {
         base.Start();
-        UpdateHealthDisplay(curHealth);
+        UpdateHealthDisplay(CurHealth);
     }
 
     private IEnumerator ResetBlockCount()
@@ -93,17 +93,17 @@ public class PlayerCombatManager : ActorCombatManager
         
         int damageSuffered = CalculateDamageSuffered(damageSent, (_blockCount > 0));
         Debug.Log($"{this.name} got sent {damageSent}. It suffered {damageSuffered} damage.");
-        curHealth -= damageSuffered;
-        if (curHealth < 0)
+        CurHealth -= damageSuffered;
+        if (CurHealth < 0)
         {
-            curHealth = 0;
+            CurHealth = 0;
         }
         if (damageSuffered > 0) SpawnPrefabHere(hitTakenPrefab);
         else SpawnPrefabHere(hitDeflectedPrefab); 
         
-        UpdateHealthDisplay(curHealth);
+        UpdateHealthDisplay(CurHealth);
 
-        if (curHealth == 0)
+        if (CurHealth == 0)
         {
             Die();
             IsAlive = false;
@@ -214,16 +214,16 @@ public class PlayerCombatManager : ActorCombatManager
         GameObject thisGameObject = gameObject;
         Vector3 transformPosition = transform.position;
         Vector2 corpsePosition = new Vector2(Mathf.Floor(transformPosition.x) + .5f, Mathf.Floor(transformPosition.y) + .5f);
-        GameObject corpse = Instantiate(corpsePrefab, corpsePosition, Quaternion.identity);
-        PlayerController.Instance.GetChildComponentByName<Camera>("Main Camera").transform.SetParent(corpse.transform);
+        // GameObject corpse = Instantiate(corpsePrefab, corpsePosition, Quaternion.identity);
+        // PlayerController.Instance.GetChildComponentByName<Camera>("Main Camera").transform.SetParent(corpse.transform);
         Destroy(overheadDisplayInstance);
         Destroy(thisGameObject);
     }
     
     protected void UpdateHealthDisplay(int curHealth)
     {
-        overheadDisplayManager.UpdateHealth(actorStats.GetStat(IntStatInfoType.Health), curHealth);
-        healthDisplayManager.UpdateHealth(actorStats.GetStat(IntStatInfoType.Health), curHealth);
+        if (overheadDisplayManager != null) overheadDisplayManager.UpdateHealth(actorStats.GetStat(IntStatInfoType.Health), curHealth);
+        if (healthDisplayManager != null) healthDisplayManager.UpdateHealth(actorStats.GetStat(IntStatInfoType.Health), curHealth);
     }
     
 }

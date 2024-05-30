@@ -88,7 +88,6 @@ public class Monster : MonoBehaviour
         acm = GetComponent<ActorCombatManager>();
         acm.actorStats = monsterStats;
         acm.mbi = mbi;
-        acm.corpsePrefab = mbi.corpsePrefab;
     }
 
     private void Update()

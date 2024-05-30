@@ -92,14 +92,21 @@ public class BaseItem : MonoBehaviour, ICloneable {
                     _countTextObject = null;
                 }
             }
-            
+
+            if (baseInfo.GetBoolStat(BoolStatInfoType.Container) || baseInfo.GetBoolStat(BoolStatInfoType.Corpse)) {
+                InitialiseAsContainer();
+            }
+            if (baseInfo.GetBoolStat(BoolStatInfoType.Corpse))
+            {
+                ToggleMapPresence(true);
+            }
         }
     }
 
     public void SetCount(int count) {
         this.count = count;
         if (this.count == 0) {
-            this.Spm.SetCurrentItem(null);
+            if (Spm != null) Spm.SetCurrentItem(null);
             Destroy(gameObject);
             return;
         }
@@ -157,8 +164,10 @@ public class BaseItem : MonoBehaviour, ICloneable {
             transform.localScale = Vector3.one;
             sr.sortingLayerName = "Background";
             image.enabled = false;
-            this.Spm.SetCurrentItem(null);
-            this.Spm = null;
+            if (this.Spm != null) {
+                this.Spm.SetCurrentItem(null);
+                this.Spm = null;    
+            }
         }
         else if (!makePresentOnMap) {
             if (sr) Destroy(sr);
@@ -167,5 +176,10 @@ public class BaseItem : MonoBehaviour, ICloneable {
             // gameObject.layer = LayerMask.NameToLayer("UI");
             image.enabled = true;
         }
+    }
+
+    public void InitialiseAsContainer() {
+        ContainerManager cm = gameObject.AddComponent<ContainerManager>();
+        cm.Initialise(baseInfo);
     }
 }

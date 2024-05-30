@@ -72,7 +72,6 @@ public class ItemTransferSliderManager : MonoBehaviour
 
     public void CancelTransfer()
     {
-         if (sourceItem != null) sourceItem.GetComponent<ItemDragManager>().ReturnToOriginalPosition();
         Destroy(gameObject); // Close the slider UI without making any changes
     }
 }

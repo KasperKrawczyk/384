@@ -12,6 +12,7 @@ public class AssetsDB : MonoBehaviour
     public Dictionary<string, Animator> effectAnimatorDictionary = new Dictionary<string, Animator>();
     public Dictionary<string, DropTable> dropTableDictionary = new Dictionary<string, DropTable>();
     public Dictionary<string, BaseInfo> baseInfoDictionary = new Dictionary<string, BaseInfo>();
+    public Dictionary<string, BaseInfo> corpseBaseInfoDictionary = new Dictionary<string, BaseInfo>();
     
     void Awake() {
         if (Instance != null && Instance != this) {
@@ -29,7 +30,8 @@ public class AssetsDB : MonoBehaviour
         LoadSprites("ProjectileSprites", projectileSpriteDictionary);
         // LoadEffectAnimators("");
         LoadDropTables("Assets/Resources/DropTables");
-        LoadBaseInfos("Assets/Resources/BaseInfos");
+        LoadBaseInfos("Assets/Resources/ItemBaseInfos", baseInfoDictionary);
+        LoadBaseInfos("Assets/Resources/CorpseBaseInfos", corpseBaseInfoDictionary);
     }
 
     void LoadSprites(string path, Dictionary<string, Sprite> dictionary)
@@ -59,11 +61,11 @@ public class AssetsDB : MonoBehaviour
         }
     }
 
-    void LoadBaseInfos(string path) {
+    void LoadBaseInfos(string path, Dictionary<string, BaseInfo> dictionary) {
         string[] jsonFiles = Directory.GetFiles(path, "*.json");
         foreach (string file in jsonFiles) {
             BaseInfo baseInfo = JsonUtils.LoadJsonAsSO<BaseInfo>(file);
-            baseInfoDictionary.Add(baseInfo.itemName, baseInfo);  // Assuming `id` is a public int field in BaseInfo
+            dictionary.Add(baseInfo.itemName, baseInfo);
         }
     }
 

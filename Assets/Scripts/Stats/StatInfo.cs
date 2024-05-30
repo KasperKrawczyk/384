@@ -74,7 +74,8 @@ public enum IntStatInfoType
         BreakChance,
         Charges,
         Weight,
-        Hands
+        Hands,
+        NumSlots
         
 }
 

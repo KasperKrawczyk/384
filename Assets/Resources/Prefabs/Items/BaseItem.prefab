@@ -150,7 +150,7 @@ GameObject:
   - component: {fileID: 6905104176874785105}
   m_Layer: 5
   m_Name: BaseItem
-  m_TagString: Untagged
+  m_TagString: Item
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -173,7 +173,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 18.956417, y: 13.254578}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 1, y: 1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &6306672762501708228
 MonoBehaviour:
@@ -237,8 +237,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c5a4a5006ab4432b645713cfa452e04, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  originalParent: {fileID: 0}
-  canvas: {fileID: 0}
 --- !u!114 &6905104176874785105
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -255,7 +253,7 @@ MonoBehaviour:
   useEffectPrefab: {fileID: 0}
   sr: {fileID: 0}
   bc: {fileID: 0}
-  spm: {fileID: 0}
+  Spm: {fileID: 0}
   image: {fileID: 0}
   count: 0
   idm: {fileID: 0}

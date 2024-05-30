@@ -30,6 +30,6 @@ public class ActorHealthBarManager : MonoBehaviour
         }
 
         // Update health bar fill based on the enemy's health
-        healthFillImage.fillAmount =  (float) acm.curHealth / acm.maxHealth;
+        healthFillImage.fillAmount =  (float) acm.CurHealth / acm.maxHealth;
     }
 }

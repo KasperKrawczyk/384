@@ -21,7 +21,6 @@ public class ActorCombatManager : MonoBehaviour, IDamageable
     }
 
     [SerializeField] protected CombatType combatCapabilities = CombatType.Melee | CombatType.Ranged; // Default to both
-    [SerializeField] public GameObject corpsePrefab;
     [SerializeField] public GameObject overheadDisplayPrefab;
     [SerializeField] public GameObject overheadDisplayInstance;
     [SerializeField] public Canvas worldCanvas;
@@ -31,7 +30,7 @@ public class ActorCombatManager : MonoBehaviour, IDamageable
 
     [SerializeField] protected Random rng = new Random();
     [SerializeField] public int maxHealth;
-    [SerializeField] public int curHealth { get; protected set; }
+    [SerializeField] public int CurHealth { get; set; }
     [SerializeField] protected int maxMeleeDamage = 1;
     [SerializeField] protected int minMeleeDamage = 1;
     [SerializeField] protected int maxRangedDamage = 1;
@@ -96,7 +95,7 @@ public class ActorCombatManager : MonoBehaviour, IDamageable
         minMeleeDamage = (int) actorStats.GetStat(IntStatInfoType.MinMeleeDamage);
         maxRangedDamage = (int) actorStats.GetStat(IntStatInfoType.MaxRangedDamage);
         minRangedDamage = (int) actorStats.GetStat(IntStatInfoType.MinRangedDamage);
-        curHealth = maxHealth;
+        CurHealth = maxHealth;
         rb = GetComponent<Rigidbody2D>();
     }
 
@@ -141,10 +140,10 @@ public class ActorCombatManager : MonoBehaviour, IDamageable
         SpawnPrefabHere(hitTakenPrefab);
         int damageSuffered = MonsterCombatMathUtils.GetDamageSuffered(damageSent, actorStats.GetStat(IntStatInfoType.Armour));
         Debug.Log($"{this.name} got sent {damageSent}. It suffered {damageSuffered} damage.");
-        curHealth -= damageSuffered;
-        curHealth = Math.Max(curHealth, 0);
-        overheadDisplayManager.UpdateHealth(actorStats.GetStat(IntStatInfoType.Health), curHealth);
-        if (curHealth == 0)
+        CurHealth -= damageSuffered;
+        CurHealth = Math.Max(CurHealth, 0);
+        overheadDisplayManager.UpdateHealth(actorStats.GetStat(IntStatInfoType.Health), CurHealth);
+        if (CurHealth == 0)
         {
             Die();
         }
@@ -281,13 +280,20 @@ public class ActorCombatManager : MonoBehaviour, IDamageable
     
     protected virtual void Die()
     {
-        GameObject thisGameObject = gameObject;
         Vector3 transformPosition = transform.position;
         Vector2 corpsePosition = new Vector2(Mathf.Floor(transformPosition.x) + .5f, Mathf.Floor(transformPosition.y) + .5f);
         // PlayerController.Instance.GetStatsManager().curExperiencePoints += (int) actorStats.GetIntStat(IntStatInfoType.Experience);
-        Instantiate(corpsePrefab, corpsePosition, Quaternion.identity);
+        
+        
+        GameObject itemPrefab = Resources.Load<GameObject>("Prefabs/Items/BaseItem");
+        GameObject item = Instantiate(itemPrefab, corpsePosition, Quaternion.identity);
+
+        BaseInfo baseInfo = AssetsDB.Instance.corpseBaseInfoDictionary[mbi.corpseBaseInfoName];
+        item.GetComponent<BaseItem>().InitialiseFromBaseInfo(baseInfo, 0);
+        item.GetComponent<RectTransform>().localScale = Vector3.one;
+        
         Destroy(overheadDisplayInstance);
-        Destroy(thisGameObject);
+        Destroy(gameObject);
     }
     
 
@@ -303,7 +309,7 @@ public class ActorCombatManager : MonoBehaviour, IDamageable
         overheadDisplayManager = overheadDisplayInstance.GetComponent<OverheadDisplayManager>();
         overheadDisplayManager.nameText.text = mbi.name;
         overheadDisplayManager.targetTransform = transform;
-        overheadDisplayManager.UpdateHealth(maxHealth, curHealth);
+        overheadDisplayManager.UpdateHealth(maxHealth, CurHealth);
     }
     
 
