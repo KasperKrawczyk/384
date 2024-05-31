@@ -7,49 +7,64 @@ using UnityEngine;
 public class ContainerPanelManager : MonoBehaviour
 {
     [SerializeField] protected GameObject slotPanelPrefab;
-    public GameObject[] Items { get; private set; }
-    public GameObject[] Slots { get; private set; }
+    public GameObject[] Items;
+    public List<GameObject> Slots;
 
     private void Awake()
     {
-        this.Items = new GameObject[1];
-        this.Slots = new GameObject[1];
+        Initialise(40);
     }
 
-    public void Initialise(int numSlots)
+    private void Initialise(int numSlots)
     {
-        Slots = new GameObject[numSlots];
-        Items = new GameObject[numSlots];
+        Slots = new List<GameObject>();
         for (int i = 0; i < numSlots; i++)
         {
-            Slots[i] = Instantiate(slotPanelPrefab, transform);
+            Slots.Add(Instantiate(slotPanelPrefab, transform));
             Slots[i].GetComponent<SlotPanelManager>().SetSlotIndex(i);
             Slots[i].GetComponent<SlotPanelManager>().SetContainerPanelManager(this);
 
         }
-        // for (int i = 0; i < Items.Length; i++)
-        // {
-            // Slots[i].GetComponent<SlotPanelManager>().SetCurrentItem(Items[i]);
-        // }
-
-    } 
-    public void AddLootToInstantiate(List<(string, int)> lootIdAndQtyPairs)
-    {
-        int itemsSlotCount = 0;
-        for (int i = 0; i < lootIdAndQtyPairs.Count; i++)
-        {
-            while (Items[itemsSlotCount] != null && itemsSlotCount < Items.Length)
-            {
-                itemsSlotCount++;
-            }
-
-            var (curItemId, curItemCount) = lootIdAndQtyPairs[i];
-            SlotPanelManager spm = Slots[itemsSlotCount].GetComponent<SlotPanelManager>();
-            GameObject item = spm.InstantiateAndSetCurrentItem(curItemId, curItemCount);
-            Items[itemsSlotCount] = item;
-        }
-
     }
+
+    public void ConnectWithContainer(ContainerManager cm) {
+        if (cm.Items.Length > Slots.Count) {
+            for (int i = Slots.Count - 1; i < cm.Items.Length; i++) {
+                Slots.Add(Instantiate(slotPanelPrefab, transform));
+                Slots[i].GetComponent<SlotPanelManager>().SetSlotIndex(i);
+                Slots[i].GetComponent<SlotPanelManager>().SetContainerPanelManager(this);
+            }
+        }
+        
+        Items = cm.Items;
+        for (int i = 0; i < Items.Length; i++) {
+            Slots[i].GetComponent<SlotPanelManager>().SetCurrentItem(Items[i]);
+        }
+    }
+
+    public void DisconnectFromContainer() {
+        for (int i = 0; i < Items.Length; i++) {
+            Slots[i].GetComponent<SlotPanelManager>().SetCurrentItem(null);
+        }
+        Items = null;
+    }
+    // public void AddLootToInstantiate(List<(string, int)> lootIdAndQtyPairs)
+    // {
+    //     int itemsSlotCount = 0;
+    //     for (int i = 0; i < lootIdAndQtyPairs.Count; i++)
+    //     {
+    //         while (Items[itemsSlotCount] != null && itemsSlotCount < Items.Length)
+    //         {
+    //             itemsSlotCount++;
+    //         }
+    //
+    //         var (curItemId, curItemCount) = lootIdAndQtyPairs[i];
+    //         SlotPanelManager spm = Slots[itemsSlotCount].GetComponent<SlotPanelManager>();
+    //         GameObject item = spm.InstantiateAndSetCurrentItem(curItemId, curItemCount);
+    //         Items[itemsSlotCount] = item;
+    //     }
+    //
+    // }
 
     public GameObject[] getItems()
     {
@@ -59,7 +74,7 @@ public class ContainerPanelManager : MonoBehaviour
     public int DistributeStackable(GameObject itemGameObject, int toDistribute)
     {
         BaseItem transferredItem = itemGameObject.GetComponent<BaseItem>();
-        for (int i = 0; i < Slots.Length; i++)
+        for (int i = 0; i < Slots.Count; i++)
         {
             BaseItem curItem = Slots[i].GetComponent<SlotPanelManager>().GetCurrentItem();
             if (curItem && curItem.baseInfo.itemName == transferredItem.baseInfo.itemName && curItem.count < 100)

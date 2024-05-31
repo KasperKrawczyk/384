@@ -73,7 +73,7 @@ public class ActorCombatManager : MonoBehaviour, IDamageable
                     if (attackRoutine != null)
                     {
                         StopCoroutine(attackRoutine);
-                        attackRoutine = null; // Clear the reference
+                        attackRoutine = null; // clear the reference
                         
                     }
                 }

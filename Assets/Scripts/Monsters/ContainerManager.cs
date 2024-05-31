@@ -14,7 +14,8 @@ public class ContainerManager : MonoBehaviour
 
     [SerializeField] protected GameObject containerParentPanelPrefab;
     [SerializeField] protected ContainerPanelManager cpm;
-    
+    [SerializeField] public GameObject[] Items;
+    [SerializeField] public GameObject[] Slots;
     // private ObjectInteractionManager _oim;
     public GameObject ThisContainer { private set; get; }
     // [SerializeField] private GameObject thisContainerObject;
@@ -29,7 +30,8 @@ public class ContainerManager : MonoBehaviour
         playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
 
         GetComponentInParent<ObjectInteractionManager>().OnInteractableClick += OnClick;
-        Destroy(gameObject, CorpseDestroyTime);
+        // Destroy(gameObject, CorpseDestroyTime);
+
         // Initialise(monsterName);
     }
 
@@ -37,16 +39,18 @@ public class ContainerManager : MonoBehaviour
         GameObject containerPrefab = Resources.Load<GameObject>("Prefabs/UI/ContainerParentPanel");
         
         // thisContainerObject = Instantiate(containerPrefab, transform.position, Quaternion.identity, transform);
-        ThisContainer = Instantiate(containerPrefab, InventoryManager.Instance.transform);
-        ThisContainer.SetActive(false);
+        // ThisContainer = Instantiate(containerPrefab, InventoryManager.Instance.transform);
+        // ThisContainer.SetActive(false);
         isOpen = false;
-        
-        cpm = ThisContainer.transform.Find("ContainerPanel").GetComponent<ContainerPanelManager>();
-        cpm.Initialise(corpseItemBaseInfo.GetIntStat(IntStatInfoType.NumSlots));
-
+        byte numSlots = (byte)corpseItemBaseInfo.GetIntStat(IntStatInfoType.NumSlots);
+        // cpm = ThisContainer.transform.Find("ContainerPanel").GetComponent<ContainerPanelManager>();
+        // cpm.Initialise(numSlots);
+        this.Items = new GameObject[numSlots];
+        this.Slots = new GameObject[numSlots];
         if (corpseItemBaseInfo.GetBoolStat(BoolStatInfoType.Corpse)) {
             dropTable = AssetsDB.Instance.dropTableDictionary[corpseItemBaseInfo.itemName];
-            cpm.AddLootToInstantiate(InitialiseLoot(dropTable));
+            // cpm.AddLootToInstantiate(InitialiseFromDropTable(dropTable));
+            InitialiseFromDropTable(dropTable, Items);
         }
         
     }
@@ -64,32 +68,30 @@ public class ContainerManager : MonoBehaviour
         }
     }
     
-    private List<(string, int)> InitialiseLoot(DropTable dropTable)
+    private void InitialiseFromDropTable(DropTable dropTable, GameObject[] containerItemsArray)
     {
-        List<(string, int)> pairs = new List<(string, int)>();
+        List<GameObject> items = new List<GameObject>();
 
-        int i = 0;
         foreach (DropStatInfo dsi in dropTable.dropStatInfoList)
         {
             if (Random.Range(0f, 1f) <= dsi.prob)
             {
-                // GameObject itemPrefab = Resources.Load<GameObject>("Prefabs/Items/BaseItem");
-                // BaseInfo baseInfo = AssetsDB.Instance.baseInfoDictionary[dsi.itemId];
-                // itemPrefab.GetComponent<BaseItem>().InitialiseFromBaseInfo(baseInfo);
                 int count = dsi.qty;
                 if (dsi.qty > 1)
                 {
                     count = Random.Range(0, dsi.qty + 1);
                     
                 }
-                // GameObject itemInstance = Instantiate(itemPrefab, transform.position, Quaternion.identity);
-                if (count > 0) pairs.Add((dsi.itemId, count));
+
+                GameObject item = InstantiateItem(dsi.itemId, count);
+                if (count > 0) items.Add(item);
             }
 
-            i++;
         }
-        CollectionUtils.Shuffle(pairs);
-        return pairs;
+        CollectionUtils.Shuffle(items);
+        for (int i = 0; i < items.Count; i++) {
+            containerItemsArray[i] = items[i];
+        }
     }
     
     public void OnClick(InputAction.CallbackContext context)
@@ -103,19 +105,24 @@ public class ContainerManager : MonoBehaviour
 
     }
     
-    public void ToggleOpenClose()
+    private void ToggleOpenClose()
     {
 
         Debug.Log("in ToggleOpenClose");
         if (!isOpen)
         {
-            ThisContainer.SetActive(true);
+            ThisContainer = InventoryManager.Instance.containerParentPanelPool.Get();
+            cpm = ThisContainer.GetComponent<ContainerPanelManager>();
+            cpm.ConnectWithContainer(this);
             isOpen = true;
             StartCoroutine(CloseOnDistanceLoop());
         }
         else
         {
-            ThisContainer.SetActive(false);
+            cpm.DisconnectFromContainer();
+            InventoryManager.Instance.containerParentPanelPool.Return(ThisContainer);
+            ThisContainer = null;
+            cpm = null;
             isOpen = false;
         }
         // _cv.alpha = _cv.alpha > 0 ? 0 : 1;
@@ -126,5 +133,28 @@ public class ContainerManager : MonoBehaviour
     {
         return Vector3.Distance(playerTransform.position, transform.position);
     }
+    
+    // public void Initialise(int numSlots)
+    // {
+    //     Slots = new GameObject[numSlots];
+    //     Items = new GameObject[numSlots];
+    //     for (int i = 0; i < numSlots; i++)
+    //     {
+    //         // Slots[i] = Instantiate(slotPanelPrefab, transform);
+    //         Slots[i].GetComponent<SlotPanelManager>().SetSlotIndex(i);
+    //         Slots[i].GetComponent<SlotPanelManager>().SetContainerPanelManager(this);
+    //
+    //     }
+    // } 
+    
+    public GameObject InstantiateItem(string itemId, int count)
+    {
+        GameObject itemPrefab = Resources.Load<GameObject>("Prefabs/Items/BaseItem");
+        GameObject item = Instantiate(itemPrefab, transform);
+        BaseInfo baseInfo = AssetsDB.Instance.baseInfoDictionary[itemId];
+        item.GetComponent<BaseItem>().InitialiseFromBaseInfo(baseInfo, count);
+        item.SetActive(false);
 
+        return item;
+    }
 }

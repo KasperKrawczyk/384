@@ -4,9 +4,10 @@ using UnityEngine;
 public class InventoryManager : MonoBehaviour
 {
     private static InventoryManager _instance;
-
+    public ObjectPool containerParentPanelPool;
     [SerializeField] public Canvas uiCanvas;
     [SerializeField] public GameObject transferSliderPrefab;
+    [SerializeField] public GameObject containerPanelPrefab;
 
     public static InventoryManager Instance
     {
@@ -19,6 +20,10 @@ public class InventoryManager : MonoBehaviour
 
             return _instance;
         }
+    }
+
+    private void Start() {
+        containerParentPanelPool = new ObjectPool(containerPanelPrefab, this.transform);
     }
 
     public void ShowTransferSlider(ContainerPanelManager cpm, int slotIndex, BaseItem sourceItem, BaseItem targetItem)
