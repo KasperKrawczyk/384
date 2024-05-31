@@ -15,4 +15,5 @@ public class DropStatInfo
     public string itemId;
     public float prob;
     public int qty;
+    public DropStatInfo inside;
 }

@@ -3,10 +3,6 @@ using UnityEngine;
 public class Shooter : Monster
 {
 
-    [SerializeField] public float shootingDistanceMax { get; set; } = 5f;
-    [SerializeField] public float shootingDistanceMin { get; set; } = 3f;
-    
-    
     protected override void Pursue()
     {
         if (!isMoving)
@@ -20,7 +16,7 @@ public class Shooter : Monster
                 // Maintain current position if already within the ideal shooting range
                 isMoving = false;
             }
-            else if (distanceToPlayer <= shootingDistanceMin)
+            else if (distanceToPlayer <= monsterStats.GetStat(IntStatInfoType.ShootingDistanceMin))
             {
                 // If too close, find a direction to move away from the player
                 currentDestination = transform.position - playerTransform.position.normalized;

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.U2D;
 
@@ -53,13 +54,32 @@ public class AssetsDB : MonoBehaviour
         }
     }
 
-    void LoadDropTables(string path) {
-        string[] jsonFiles = Directory.GetFiles(path, "*.json");
-        foreach (string file in jsonFiles) {
-            DropTable dropTable = JsonUtils.LoadJsonAsSO<DropTable>(file);
-            dropTableDictionary.Add(Path.GetFileNameWithoutExtension(file), dropTable);
+    void LoadDropTables(string path)
+    {
+        try
+        {
+            string[] jsonFiles = Directory.GetFiles(path, "*.json");
+            foreach (string file in jsonFiles)
+            {
+                string jsonData = File.ReadAllText(file);
+                DropTable dropTable = JsonConvert.DeserializeObject<DropTable>(jsonData, new JsonSerializerSettings
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                    TypeNameHandling = TypeNameHandling.Auto
+                });
+
+                if (dropTable != null)
+                {
+                    dropTableDictionary.Add(Path.GetFileNameWithoutExtension(file), dropTable);
+                }
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Failed to load drop tables from path: {path}. Exception: {e.Message}");
         }
     }
+
 
     void LoadBaseInfos(string path, Dictionary<string, BaseInfo> dictionary) {
         string[] jsonFiles = Directory.GetFiles(path, "*.json");

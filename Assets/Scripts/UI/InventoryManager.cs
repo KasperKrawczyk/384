@@ -8,8 +8,6 @@ public class InventoryManager : MonoBehaviour
     [SerializeField] public Canvas uiCanvas;
     [SerializeField] public GameObject transferSliderPrefab;
 
-    // debug
-    [SerializeField] private BaseItem[] items; 
     public static InventoryManager Instance
     {
         get
